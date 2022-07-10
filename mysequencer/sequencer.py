@@ -63,11 +63,11 @@ class Sequencer:
         """
         step = self.index
         if self.notes[step]:
-            self.add_note(step=self.index, note=note)
-            return (True, step)
-        else:
             self.clear_step(step)
             return (False, step)
+        else:
+            self.add_note(step=self.index, note=note)
+            return (True, step)
 
     def add_note(self, step: int, note: int):
         # make sure we're not being led out of bounds
