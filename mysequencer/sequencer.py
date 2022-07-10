@@ -1,5 +1,5 @@
 import logging
-from clock import Clock
+from mysequencer.clock import Clock
 
 
 class MidiCvException(Exception):

@@ -1,4 +1,4 @@
-from sequencer import Sequencer
+from mysequencer.sequencer import Sequencer
 
 from mido import Message
 from mido.ports import BaseOutput

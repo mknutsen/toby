@@ -1,12 +1,12 @@
-from mido import get_input_names, get_output_names, open_input, open_output, Message
-from sequencer import Sequencer
-from clock import Clock
 import logging
-from track import Track
+from mysequencer.sequencer import Sequencer
+from mysequencer.clock import Clock
+from mysequencer.track import Track
 from mido.ports import BaseOutput
-tracks = []
 from typing import Optional
 from time import sleep
+from mido import get_input_names, get_output_names, open_input, open_output, Message
+tracks = []
 
 GLOBAL_OUTPUT_PORT: Optional[BaseOutput] = None
 # OFF BY ONE IN THE MIDI CHANNELS
