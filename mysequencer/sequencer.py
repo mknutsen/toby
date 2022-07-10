@@ -52,6 +52,23 @@ class Sequencer:
         if step < 0 or step >= self.beat_length:
             raise InvalidStepException()
 
+    def trigger_note(self, note: int) -> bool:
+        """_summary_
+
+        Args:
+            note (int): _description_
+
+        Returns:
+            bool: True if note add False if note deleted TODODODO
+        """
+        step = self.index
+        if self.notes[step]:
+            self.add_note(step=self.index, note=note)
+            return (True, step)
+        else:
+            self.clear_step(step)
+            return (False, step)
+
     def add_note(self, step: int, note: int):
         # make sure we're not being led out of bounds
         self.validate_step(step)
@@ -61,6 +78,10 @@ class Sequencer:
         # make sure we're not being led out of bounds
         self.validate_step(step)
         return self.notes[step]
+    
+    def clear_step(self, step: int):
+        self.validate_step(step)
+        self.notes[step] = None
 
 
 if __name__ == "__main__":
