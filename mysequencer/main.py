@@ -6,6 +6,7 @@ from mido.ports import BaseOutput
 from typing import Optional
 from time import sleep
 from mido import get_input_names, get_output_names, open_input, open_output, Message
+
 tracks = []
 
 GLOBAL_OUTPUT_PORT: Optional[BaseOutput] = None
@@ -33,8 +34,12 @@ def main():
 
     midi_channels = [i for i in range(0, num_tracks)]
     for channel in midi_channels:
-        sequencer = Sequencer(beats_per_minute=beats_per_minute, beat_length=beat_length, clock=clock)
-        tracks.append(Track(sequence=sequencer, midi_channel=channel, port=GLOBAL_OUTPUT_PORT))
+        sequencer = Sequencer(
+            beats_per_minute=beats_per_minute, beat_length=beat_length, clock=clock
+        )
+        tracks.append(
+            Track(sequence=sequencer, midi_channel=channel, port=GLOBAL_OUTPUT_PORT)
+        )
 
     tracks[0].sequence.add_note(1, 60)
 

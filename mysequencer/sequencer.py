@@ -1,6 +1,6 @@
 import logging
 from mysequencer.clock import Clock
-
+from enum import Enum, auto
 
 class MidiCvException(Exception):
     """ExceptionClass"""
@@ -8,6 +8,11 @@ class MidiCvException(Exception):
 
 class InvalidStepException(MidiCvException):
     """Invalid step"""
+
+
+class led_message_type(Enum):
+    ON = auto()
+    OFF = auto()
 
 
 class Sequencer:
@@ -25,6 +30,10 @@ class Sequencer:
         self.beat_length = beat_length
         self.notes = [None] * beat_length
         self.notes_callback = []
+        self.sequence_update_callback = []
+
+    def add_sequence_update_callback(self, callback):
+        self.sequence_update_callback.append(callback)
 
     def add_notes_callback(self, callback):
         self.notes_callback.append(callback)
@@ -35,6 +44,14 @@ class Sequencer:
     def tic_callback(self):
         # print("tic!")
         pass
+
+    def sequence_update_callback_clear(self, step):
+        for callback in self.sequence_update_callback:
+            callback(led_message_type.OFF, step)
+
+    def sequence_update_callback_add(self, step):
+        for callback in self.sequence_update_callback:
+            callback(led_message_type.ON, step)
 
     def beat_callback(self):
         # print("beat!")
@@ -73,15 +90,17 @@ class Sequencer:
         # make sure we're not being led out of bounds
         self.validate_step(step)
         self.notes[step] = note
+        self.sequence_update_callback_add(step)
 
     def get_note(self, step: int):
         # make sure we're not being led out of bounds
         self.validate_step(step)
         return self.notes[step]
-    
+
     def clear_step(self, step: int):
         self.validate_step(step)
         self.notes[step] = None
+        self.sequence_update_callback_clear(step)
 
 
 if __name__ == "__main__":
