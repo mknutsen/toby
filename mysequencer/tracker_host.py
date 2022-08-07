@@ -58,6 +58,8 @@ def main():
 
     # uses the clock to handle the sequence and sends notes to the track
     SEQUENCER = Sequencer(beats_per_minute=beats_per_minute, beat_length=beat_length, clock=clock)
+    SEQUENCER.add_note(0, 50)
+    SEQUENCER.add_note(4, 55)
     
     # outputs notes to midi channel
     # TRACK = Track(sequence=SEQUENCER, midi_channel=midi_channel, port=GLOBAL_OUTPUT_PORT)
@@ -68,7 +70,7 @@ def main():
             print(response)
         pass
 
-    RunDashboard(beat_length, callback)
+    RunDashboard(SEQUENCER, callback)
 
     while not _DELETE:
         pass

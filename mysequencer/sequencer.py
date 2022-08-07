@@ -86,6 +86,9 @@ class Sequencer:
             self.add_note(step=self.index, note=note)
             return (True, step)
 
+    def get_beat_length(self):
+        return self.beat_length
+
     def add_note(self, step: int, note: int):
         # make sure we're not being led out of bounds
         self.validate_step(step)

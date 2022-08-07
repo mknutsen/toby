@@ -3,19 +3,95 @@ from pystache import Renderer
 from os import makedirs
 from shutil import rmtree
 from pathlib import Path
-
+from sequencer import Sequencer
+from num2words import num2words
+from yattag import Doc as HTML_Doc
+from music21.note import Note
 
 class FlaskException(Exception):
     """This is what happens when flask fails"""
 
+def create_beat_name(beat):
+    return f"beat_{num2words(beat)}"
 
 
+NOTES_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+NOTES_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+def NoteToMidi(KeyOctave):
+    # KeyOctave is formatted like 'C#3'
+    key = KeyOctave[:-1]  # eg C, Db
+    octave = KeyOctave[-1]   # eg 3, 4
+    answer = -1
+
+    try:
+        if 'b' in key:
+            pos = NOTES_FLAT.index(key)
+        else:
+            pos = NOTES_SHARP.index(key)
+    except:
+        print('The key is not valid', key)
+        return answer
+
+    answer += pos + 12 * (int(octave) + 1) + 1
+    return answer
+
+def MidiToNote(note):
+    return Note(note).nameWithOctave
+
+class TrackerUI:
+    def __init__(self, seq: Sequencer) -> None:
+        """pass"""
+        self.sequencer = seq
+
+    def gen_script(self):
+        retstr = "<script>(function () {var xhr = new XMLHttpRequest();"
+        for beat_index in range(0, self.sequencer.get_beat_length()):
+            retstr += f"""
+document.getElementById("{create_beat_name(beat_index)}").addEventListener('click', () => {{
+    console.log("button pressed: " + document.getElementById("{create_beat_name(beat_index)}").value);
+    xhr.open("POST", '/callback', true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("index={"{create_beat_name(beat_index)}"}&response=" + document.getElementById("{create_beat_name(beat_index)}").value);
+}});"""
+        retstr +=  """
+}) ();
+</script>"""
+        return retstr
+
+    def gen_body(self) -> str:
+        doc, tag, text = HTML_Doc().tagtext()
+        with tag("table"):
+            with tag("form"):
+                for beat_index in range(0, self.sequencer.get_beat_length()):
+                    beat_value = self.sequencer.get_note(beat_index)
+                    if not beat_value:
+                        beat_value = ""
+                    else:
+                        beat_value = MidiToNote(beat_value)
+                    print(beat_index, ":", beat_value)
+                    with tag ("tr"):
+                        with tag("td"):
+                            with tag("select", id=f"beat_{num2words(beat_index)}"):
+                                with tag("option", value="off"):
+                                    text("")
+                                for octave in range(2,6):
+                                    for note in 'ABCDEFG':
+                                        note_name = f"{note}{octave}"
+                                        if note_name == beat_value:
+                                            with tag("option", value=note_name, selected="true"):
+                                                text(note_name)
+                                        else:
+                                            with tag("option", value=note_name):
+                                                text(note_name)
+        return doc.getvalue()
 
 
-def main(beat_length, callback=None):
+def main(sequencer, callback=None):
     file_path = Path(__file__) / ".."
     static_web_folder_name = "static_web"
     dashboard_file_name = "dashboard"
+    tracker = TrackerUI(sequencer)
 
 
     _DEBUG = True
@@ -26,25 +102,6 @@ def main(beat_length, callback=None):
 
     rmtree(static_web_folder_path_str, ignore_errors=True)
     makedirs(static_web_folder_path_str, exist_ok=True)
-
-    def gen_body():
-        return """
-<form>
-  <input type="textbox" id="stock_box">
-  <input type="button" id="stock_button">
-</form>
-<script>
-  (function () {
-    var xhr = new XMLHttpRequest();
-    document.getElementById("stock_button").addEventListener('click', () => {
-      console.log("button pressed: " + document.getElementById("stock_box").value);
-      xhr.open("POST", '/callback', true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.send("response=" + document.getElementById("stock_box").value);
-    });
-  })();
-</script>
-        """
 
     input_template = f"""
     <!doctype html>
@@ -57,7 +114,8 @@ def main(beat_length, callback=None):
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-        {gen_body()}
+        {tracker.gen_body()}
+        {tracker.gen_script()}
 
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
