@@ -91,41 +91,7 @@ app = Flask(__name__, static_url_path="", static_folder=static_web_folder_path_s
 
 
 def main(callback=None):
-    global GLOBAL_DATA_CALLBACK
-    if callback:
-        GLOBAL_DATA_CALLBACK = callback
     app.run(host="localhost", port=5000)
-
-
-@app.route("/stock", methods=["GET", "POST"])
-def parse_stock():
-    print("abc123 in stock parse", request)
-    return "ak"
-
-
-@app.route("/result", methods=["GET", "POST"])
-def parse_request():
-    global GLOBAL_DATA_CALLBACK
-    data = request.data  # data is empty
-    data_source_name = request.form.get("name", "")
-    data_value = request.form.get("value", "")
-    print(
-        "abc123 hsdaf0dishfpiadsjh",
-        data,
-        data_source_name,
-        data_value,
-        request,
-        request.data,
-    )
-    # print("in here abc123", data, type(data), request.form)
-    if GLOBAL_DATA_CALLBACK:
-        if not (data_source_name and data_value):
-            raise FlaskException()
-        GLOBAL_DATA_CALLBACK(data_source_name, data_value)
-    # print("data dict: ", data.__dict__)
-    return "ak"
-    # need posted data here
-
 
 if __name__ == "__main__":
     main()

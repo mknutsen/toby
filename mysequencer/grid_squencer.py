@@ -112,13 +112,15 @@ if __name__ == "__main__":
     midi_channel = 0  # midi indexing is off by one
     beats_per_minute = 90
     clock = Clock(beats_per_minute)
-    width = 12
+    width = 11
     seq = GridSequencer(beats_per_minute, width, width, clock)
+    output = open_output(_MIDI_OUTPUT_PORT_NAME)
+    
 
     for i in range(0, width * width):
         seq.add_note(step=i, note=i + 1)
-    
-    output = open_output(_MIDI_OUTPUT_PORT_NAME)
+
+    seq.print_grid()
     
     track = Track(sequence=seq, midi_channel=midi_channel, port=output)
     try:
