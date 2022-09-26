@@ -1,9 +1,8 @@
 from collections import namedtuple
-from mimetypes import init
-from mysequencer.sequencer import Sequencer
-from mysequencer.clock import Clock
-from mysequencer.value import WholeValue
-from mysequencer.track import Track
+from toby.sequencer.sequencer import Sequencer
+from toby.clock import Clock
+from toby.value import WholeValue
+from toby.midi_track import Track
 
 from collections import namedtuple
 from mido import get_input_names, get_output_names, open_input, open_output, Message

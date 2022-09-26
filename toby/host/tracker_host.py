@@ -1,8 +1,8 @@
 from matplotlib.pyplot import cool
 from serial import Serial
-from mysequencer.sequencer import Sequencer, led_message_type
-from mysequencer.clock import Clock
-from mysequencer.track import Track
+from toby.sequencer.sequencer import Sequencer, led_message_type
+from toby.clock import Clock
+from toby.midi_track import Track
 
 from mido import get_input_names, get_output_names, open_input, open_output, Message
 import logging
@@ -10,7 +10,10 @@ from threading import Thread
 from time import time
 from flask import request
 
-from tracker_flask import main as RunDashboard
+
+from toby.interface.flask_pages.tracker import TrackerUI
+from toby.interface.flask_pages.settings import SettingsUI
+from toby.interface.flask_pages.flask_page import start_flask_thread
 
 GLOBAL_OUTPUT_PORT = None
 TRACK = None
@@ -69,8 +72,10 @@ def main():
             response = request.form.get("response")
             print(response)
         pass
-
-    RunDashboard(SEQUENCER, callback)
+    
+    # start_flask_thread()
+    TrackerUI(SEQUENCER, callback).run()
+    SettingsUI(SEQUENCER, callback).run()
 
     while not _DELETE:
         pass

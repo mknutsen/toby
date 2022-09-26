@@ -1,5 +1,5 @@
 from typing import Callable, Dict, List, Any
-from mysequencer.value import Value
+from toby.value import Value
 from threading import Thread
 from time import time
 
