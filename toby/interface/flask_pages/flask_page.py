@@ -14,17 +14,26 @@ static_web_folder_path = file_path / static_web_folder_name
 static_web_folder_path_str = static_web_folder_path.resolve()
 
 class FlaskPage(metaclass=ABCMeta):
-    def __init__(self, file_name, sequencer, callback):
+    def __init__(self, file_name, sequencer):
         self.file_name = file_name
         self.sequencer = sequencer
-        self.callback = callback
-    
+
+    @abstractmethod
+    def callback(self):
+        """must include tags
+        """
+        return
+
     @abstractmethod
     def gen_body(self):
+        """must include tags
+        """
         return
 
     @abstractmethod
     def gen_script(self):
+        """must include tags
+        """
         return
 
     def run(self):
@@ -50,7 +59,6 @@ class FlaskPage(metaclass=ABCMeta):
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-</body>
 </html>"""
 
         print("starting ", dashboard_file_path_str)
@@ -58,12 +66,20 @@ class FlaskPage(metaclass=ABCMeta):
         with open(dashboard_file_path_str, "w") as file:
             file.write(input_template)
 
-def start_flask_thread():
+def start_flask_thread(flask_pages):
     rmtree(static_web_folder_path_str, ignore_errors=True)
     makedirs(static_web_folder_path_str, exist_ok=True)
 
+    for flask_page in flask_pages:
+        flask_page.run()
+
     def _start():
         app = Flask(__name__, static_url_path="", static_folder=static_web_folder_path_str)
+        for flask_page in flask_pages:
+            callback_str = flask_page.file_name
+            print("adding callback for", callback_str)
+            app.add_url_rule(rule=f'/{callback_str}', endpoint=callback_str, methods=['POST', 'GET'])
+            app.view_functions[callback_str] = flask_page.callback
         app.run(host="localhost", port=5000)
     
     thread = Thread(target=_start)

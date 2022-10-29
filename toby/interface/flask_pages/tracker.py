@@ -4,9 +4,11 @@ from os import makedirs
 from shutil import rmtree
 from pathlib import Path
 from num2words import num2words
+from flask import Flask, request, send_from_directory
 from yattag import Doc as HTML_Doc
 from music21.note import Note
 from toby.interface.flask_pages.flask_page import FlaskPage, static_web_folder_path_str
+from toby.interface.flask_pages.settings import SettingCache
 
 class FlaskException(Exception):
     """This is what happens when flask fails"""
@@ -45,8 +47,28 @@ def midi_note_value_from_index(number):
     return number
 
 class TrackerUI(FlaskPage):
-    def __init__(self, sequencer, callback):
-        super().__init__("tracker", sequencer, callback)
+    def __init__(self, sequencer):
+        super().__init__("tracker", sequencer)
+
+    def register_settings(self, settings):
+        def _set_bpm(bpm):
+            print("setting bpm!", bpm)
+
+        def _get_bpm():
+            return self.sequencer.beats_per_minute
+
+        def _set_steps(steps):
+            print("settingstep!", steps)
+
+        def _get_steps():
+            return self.sequencer.beat_length
+
+        settings.register_settings("steps", SettingCache(callforward=_get_steps, callback=_set_steps))
+        settings.register_settings("bpm", SettingCache(callforward=_get_bpm, callback=_set_bpm))
+
+    def callback(self):
+        print("tracker callback")
+        print(request)
 
     def gen_script(self):
         retstr = "<script>(function () {var xhr = new XMLHttpRequest();"

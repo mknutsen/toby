@@ -3,6 +3,7 @@ from serial import Serial
 from toby.sequencer.sequencer import Sequencer, led_message_type
 from toby.clock import Clock
 from toby.midi_track import Track
+from flask import Flask, request, send_from_directory
 
 from mido import get_input_names, get_output_names, open_input, open_output, Message
 import logging
@@ -35,16 +36,6 @@ def delete():
     if TRACK:
         TRACK.delete()
 
-def sequence_update_macropad(mode, pin):
-    global _MACRO_PAD
-
-    if mode == led_message_type.ON:
-        _MACRO_PAD.set_led(pin, 124,252,0)
-    elif mode == led_message_type.OFF:
-        _MACRO_PAD.set_led_off(pin)
-    else:
-        raise Exception(f"unknown mode {mode}")
-
 def main():
     global TRACK, GLOBAL_OUTPUT_PORT, THREAD, SEQUENCER, _DELETE, _SERIAL_PORT, _MACRO_PAD
     beats_per_minute = 120
@@ -66,16 +57,10 @@ def main():
     
     # outputs notes to midi channel
     # TRACK = Track(sequence=SEQUENCER, midi_channel=midi_channel, port=GLOBAL_OUTPUT_PORT)
-    def callback(*argv):
-        print("callback", argv)
-        if request:
-            response = request.form.get("response")
-            print(response)
-        pass
-    
-    # start_flask_thread()
-    TrackerUI(SEQUENCER, callback).run()
-    SettingsUI(SEQUENCER, callback).run()
+    tracker = TrackerUI(SEQUENCER)
+    settings = SettingsUI(SEQUENCER)
+    tracker.register_settings(settings)
+    start_flask_thread([tracker, settings])
 
     while not _DELETE:
         pass
