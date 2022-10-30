@@ -1,5 +1,5 @@
 import logging
-fromy.sequencer.sequencer import Sequencer
+from toby.sequencer.sequencer import Sequencer
 from toby.clock import Clock
 from toby.midi_track import Track
 from mido.ports import BaseOutput

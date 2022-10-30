@@ -51,8 +51,8 @@ def midi_note_value_from_index(number):
     return number
 
 
-class TrackerUI(FlaskPage):
-    def __init__(self, sequencer):
+class TrackerConfigUI(FlaskPage):
+    def __init__(self, sequencer, ):
         super().__init__("tracker", sequencer)
 
     def register_settings(self, settings):

@@ -13,6 +13,7 @@ static_web_folder_name = "static_web"
 static_web_folder_path = file_path / static_web_folder_name
 static_web_folder_path_str = static_web_folder_path.resolve()
 
+
 class FlaskPage(metaclass=ABCMeta):
     def __init__(self, file_name, sequencer):
         self.file_name = file_name
@@ -20,20 +21,17 @@ class FlaskPage(metaclass=ABCMeta):
 
     @abstractmethod
     def callback(self):
-        """must include tags
-        """
+        """must include tags"""
         return
 
     @abstractmethod
     def gen_body(self):
-        """must include tags
-        """
+        """must include tags"""
         return
 
     @abstractmethod
     def gen_script(self):
-        """must include tags
-        """
+        """must include tags"""
         return
 
     def run(self):
@@ -66,6 +64,7 @@ class FlaskPage(metaclass=ABCMeta):
         with open(dashboard_file_path_str, "w") as file:
             file.write(input_template)
 
+
 def start_flask_thread(flask_pages):
     rmtree(static_web_folder_path_str, ignore_errors=True)
     makedirs(static_web_folder_path_str, exist_ok=True)
@@ -74,26 +73,31 @@ def start_flask_thread(flask_pages):
         flask_page.run()
 
     def _start():
-        app = Flask(__name__, static_url_path="", static_folder=static_web_folder_path_str)
+        app = Flask(
+            __name__, static_url_path="", static_folder=static_web_folder_path_str
+        )
         for flask_page in flask_pages:
             callback_str = flask_page.file_name
             print("adding callback for", callback_str)
-            app.add_url_rule(rule=f'/{callback_str}', endpoint=callback_str, methods=['POST', 'GET'])
+            app.add_url_rule(
+                rule=f"/{callback_str}", endpoint=callback_str, methods=["POST", "GET"]
+            )
             app.view_functions[callback_str] = flask_page.callback
         app.run(host="localhost", port=5000)
-    
+
     thread = Thread(target=_start)
     thread.start()
     return thread
 
+
 if __name__ == "__main__":
     from tracker_flask import TrackerUI
     from settings import SettingsUI
-    
+
     start_flask_thread()
     seq = Sequencer()
     TrackerUI(seq).run()
     SettingsUI().run()
 
-    while(True):
+    while True:
         pass

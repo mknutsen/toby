@@ -58,7 +58,7 @@ class GridSequencer(Sequencer):
                 callback(note)
             print("note: ", note)
         # self.print_grid()
-    
+
     def current_step_number(self):
         return self.step_number(self.coordinates.x.value, self.coordinates.y.value)
 
@@ -114,13 +114,12 @@ if __name__ == "__main__":
     width = 11
     seq = GridSequencer(beats_per_minute, width, width, clock)
     output = open_output(_MIDI_OUTPUT_PORT_NAME)
-    
 
     for i in range(0, width * width):
         seq.add_note(step=i, note=i + 1)
 
     seq.print_grid()
-    
+
     track = Track(sequence=seq, midi_channel=midi_channel, port=output)
     try:
         while True:

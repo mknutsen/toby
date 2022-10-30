@@ -2,6 +2,7 @@ import logging
 from toby.clock import Clock
 from enum import Enum, auto
 
+
 class MidiCvException(Exception):
     """ExceptionClass"""
 
@@ -17,7 +18,7 @@ class led_message_type(Enum):
 
 class Sequencer:
     # OFF BY ONE IN THE MIDI CHANNELS
-    def __init__(self, beats_per_minute = 120, beat_length = 8, clock = None) -> None:
+    def __init__(self, beats_per_minute=120, beat_length=8, clock=None) -> None:
         self.clock = clock if clock else Clock(beats_per_minute)
         self.beats_per_minute = self.clock.beats_per_minute
         self.clock.add_tic_callback(self.tic_callback)
@@ -40,7 +41,7 @@ class Sequencer:
     def tic_callback(self):
         # print("tic!")
         pass
-    
+
     def get_midi_note_labels(self):
         return [i for i in range(0, 128)]
 

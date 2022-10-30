@@ -3,10 +3,12 @@ from yattag import Doc as HTML_Doc
 from flask import Flask, request, send_from_directory
 import base64
 
+
 class SettingCache:
     def __init__(self, callforward, callback) -> None:
         self.callback = callback
         self.callforward = callforward
+
 
 class SettingsUI(FlaskPage):
     def __init__(self, sequencer):
@@ -14,7 +16,7 @@ class SettingsUI(FlaskPage):
         self.settings = {}
 
     def callback(self):
-        print("settings callbacksdfads", request.form)
+        # print("settings callbacksdfads", request.form)
         for key, value in request.form.items():
             self.processSetting(key, value)
 
@@ -22,7 +24,7 @@ class SettingsUI(FlaskPage):
         self.settings[key] = setting_cache
 
     def processSetting(self, key, value):
-        print("process setting", key, value)
+        # print("process setting", key, value)
         self.settings[key].callback(value)
 
     def gen_body(self):
@@ -40,13 +42,18 @@ class SettingsUI(FlaskPage):
             with tag("button", id="button"):
                 text("save!")
         return doc.getvalue()
-    
+
     def gen_script(self):
         return_value = """
 <script>
 (function () {{
 """
-        return_value += "".join([f'document.getElementById("{settings_name}").value = "{settings_cache.callforward()}";' for settings_name, settings_cache in self.settings.items()])
+        return_value += "".join(
+            [
+                f'document.getElementById("{settings_name}").value = "{settings_cache.callforward()}";'
+                for settings_name, settings_cache in self.settings.items()
+            ]
+        )
         return_value += """
 document.getElementById("button").addEventListener('click', () => {{
     var xhr = new XMLHttpRequest();
@@ -81,5 +88,5 @@ document.getElementById("button").addEventListener('click', () => {{
 }}) ();
 </script>
 """
-        #  
+        #
         return return_value

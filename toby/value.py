@@ -6,9 +6,7 @@ class ValueException(Exception):
 
 
 class WholeValue:
-    def __init__(
-        self, min_value, max_value, initialized_value=None
-    ) -> None:
+    def __init__(self, min_value, max_value, initialized_value=None) -> None:
         self._min = min_value
         self._max = max_value
         if initialized_value is None:
@@ -60,6 +58,7 @@ class WholeValue:
     def normalize(self):
         logging.debug("entering normalize")
         self.value = round(self.value)
+
 
 class Value:
     def __init__(
